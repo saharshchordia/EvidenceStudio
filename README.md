@@ -1,10 +1,10 @@
 # Physical Evidence to Underwriting
 
-A brand-agnostic, clickable prototype showing how physical evidence from an asset tour can become structured intelligence and refine underwriting assumptions.
+A clickable prototype showing how physical evidence from an asset tour becomes structured intelligence and refine underwriting assumptions. Demo version created as full workflow is proprietary.
 
 The experience follows one evidence chain from capture to decision:
 
-1. A field walkthrough records current conditions in an asset and its units.
+1. A field walkthrough records current conditions in an asset and its units. Commentary is part of the tour.
 2. Analysis identifies spaces, materials, finishes, condition signals, and the source moments that support each observation.
 3. Those observations populate an asset ontology that connects the property, common areas, residential inventory, and unit-level facts.
 4. A reviewer can inspect the source evidence behind a finding and translate it into a documented underwriting change.
@@ -13,14 +13,14 @@ In the demonstrated unit, observed kitchen finishes reduce the renovation budget
 
 ## Portfolio-scale operating model
 
-This prototype represents a workflow designed to scale across a real estate portfolio, not a one-off video review. The operating system combines:
+This prototype represents a workflow that is scaled across a real estate portfolio, not a one-off video review. The operating system combines:
 
 - **Devices:** consistent field-capture hardware and guided walkthroughs that create reviewable physical evidence.
 - **Processes:** repeatable tour protocols, quality checks, exception handling, and human review for consequential findings.
 - **Pipelines:** ingestion, frame extraction, space and feature classification, evidence linking, ontology creation, and underwriting export.
 - **Governance:** every modeled change retains its source moment, confidence, rationale, and review state.
 
-Together, these components turn unstructured field observations into a continuously improving record of asset quality. That record can sharpen renovation scopes, rent assumptions, capital plans, and portfolio-level comparisons while keeping the physical evidence attached to each decision.
+Together, these components turn unstructured field observations into a continuously improving record of asset quality. That record sharpens renovation scopes, rent assumptions, capital plans, and portfolio-level comparisons while keeping the physical evidence attached to each decision.
 
 ## Prototype flow
 
