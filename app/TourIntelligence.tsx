@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Stage = "tour" | "ontology" | "unit";
 
-const moments = [2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35];
+const moments = [2, 4, 6, 8, 11, 14, 17, 20, 23, 26, 29, 32];
 
 const amenityGroups = [
   {
@@ -28,7 +28,7 @@ const analysisSteps = [
   "Linking evidence to underwriting",
 ];
 
-function Filmstrip({ videoSrc, onSeek }: { videoSrc: string; onSeek: (time: number) => void }) {
+function Filmstrip({ videoSrc }: { videoSrc: string }) {
   const refs = useRef<(HTMLCanvasElement | null)[]>([]);
 
   useEffect(() => {
@@ -63,10 +63,10 @@ function Filmstrip({ videoSrc, onSeek }: { videoSrc: string; onSeek: (time: numb
   return (
     <div className="filmstrip" aria-label="Tour moments">
       {moments.map((time, index) => (
-        <button className={index === 4 ? "frame active" : "frame"} key={time} aria-label={`Jump to ${time} seconds`} onClick={() => onSeek(time)}>
+        <div className={time === 4 ? "frame active" : "frame"} key={time} aria-label={`${time} second tour moment`}>
           <canvas ref={(element) => { refs.current[index] = element; }} width="112" height="74" />
           <span>{String(time).padStart(2, "0")}s</span>
-        </button>
+        </div>
       ))}
     </div>
   );
@@ -100,7 +100,7 @@ function Progress({ stage, onChange }: { stage: Stage; onChange: (stage: Stage) 
 function TourStage({ onAnalyze }: { onAnalyze: () => void }) {
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisIndex, setAnalysisIndex] = useState(0);
-  const videoSrc = "./99-west-paces-tour.mov";
+  const videoSrc = "./tour-clip-04-12.mp4";
 
   useEffect(() => {
     if (!analyzing) return;
@@ -123,7 +123,7 @@ function TourStage({ onAnalyze }: { onAnalyze: () => void }) {
           <p className="subtitle">Asset tour · 309 units · Atlanta, GA</p>
         </div>
         <div className="source-meta">
-          <span>Tour 01</span><span>1080p video</span><span>35.6 sec</span>
+          <span>Tour 01</span><span>1080p video</span><span>8.0 sec</span>
         </div>
       </section>
 
@@ -149,7 +149,7 @@ function TourStage({ onAnalyze }: { onAnalyze: () => void }) {
           <h2>Turn a walkthrough into an underwriting record.</h2>
           <p>Identify spaces, finishes, condition signals and supporting moments from the tour.</p>
           <dl>
-            <div><dt>File</dt><dd>99 West Paces Video.MOV</dd></div>
+            <div><dt>Source</dt><dd>Tour excerpt · 00:04–00:12</dd></div>
             <div><dt>Resolution</dt><dd>1920 × 1080</dd></div>
             <div><dt>Captured</dt><dd>Property walkthrough</dd></div>
           </dl>
@@ -177,7 +177,6 @@ function OntologyStage({ onUnit }: { onUnit: () => void }) {
       </section>
 
       <section className="ontology-toolbar">
-        <div className="filter-tabs"><button className="active">Graph</button><button>List</button></div>
         <label><span>Find an object</span><input placeholder="Search ontology" /></label>
       </section>
 
@@ -211,29 +210,19 @@ function OntologyStage({ onUnit }: { onUnit: () => void }) {
   );
 }
 
-function Delta({ label, before, after, tone }: { label: string; before: string; after: string; tone: string }) {
+function Delta({ label, before, after, tone, reason }: { label: string; before: string; after: string; tone: string; reason?: React.ReactNode }) {
   return (
     <div className="delta-row">
       <span>{label}</span>
       <div><s>{before}</s><strong className={tone}>{after}</strong></div>
+      {reason && <div className="delta-reason">{reason}</div>}
     </div>
   );
 }
 
 function UnitStage() {
   const videoSrc = "./99-west-paces-tour.mov";
-  const evidenceVideo = useRef<HTMLVideoElement | null>(null);
-  const [finding, setFinding] = useState("kitchen");
   const [applied, setApplied] = useState(true);
-  const findingCopy = useMemo(() => finding === "kitchen" ? {
-    title: "Updated kitchen finishes",
-    body: "Dark shaker cabinets, light stone-look counters, stainless steel appliances and white tile backsplash.",
-    confidence: "96% confidence",
-  } : {
-    title: "Standard bathroom condition",
-    body: "Clean, serviceable fixtures with no visible deferred maintenance. Cosmetic refresh only.",
-    confidence: "91% confidence",
-  }, [finding]);
 
   return (
     <main className="stage unit-stage">
@@ -249,25 +238,18 @@ function UnitStage() {
             <div><p className="eyebrow">Synthesis</p><strong>Renovated finishes support a moderate rent premium.</strong></div>
           </div>
           <p className="rail-label">Tour moments</p>
-          <Filmstrip videoSrc={videoSrc} onSeek={(time) => {
-            if (!evidenceVideo.current) return;
-            evidenceVideo.current.currentTime = time;
-            evidenceVideo.current.play().catch(() => undefined);
-          }} />
+          <Filmstrip videoSrc={videoSrc} />
           <div className="finding-list">
-            <button className={finding === "kitchen" ? "active" : ""} onClick={() => setFinding("kitchen")}>
-              <span>05s</span><div><strong>Updated kitchen</strong><small>8 supporting frames</small></div><b>96%</b>
-            </button>
-            <button className={finding === "bath" ? "active" : ""} onClick={() => setFinding("bath")}>
-              <span>28s</span><div><strong>Standard bathroom</strong><small>4 supporting frames</small></div><b>91%</b>
-            </button>
+            <div className="finding-item active">
+              <span>04s</span><div><strong>Updated kitchen</strong><small>8 supporting frames</small></div><b>96%</b>
+            </div>
           </div>
         </aside>
 
         <section className="finding-focus">
-          <div className="focus-video"><video ref={evidenceVideo} controls preload="metadata" src={videoSrc} aria-label="Evidence moment from unit tour" /></div>
+          <figure className="focus-image"><img src="./unit-evidence-04s.jpg" alt="Observed kitchen finishes at 4 seconds in the unit tour" /><figcaption>Source frame · 00:04</figcaption></figure>
           <div className="finding-copy">
-            <div><p className="eyebrow">Finding · {findingCopy.confidence}</p><h2>{findingCopy.title}</h2><p>{findingCopy.body}</p></div>
+            <div><p className="eyebrow">Finding · 96% confidence</p><h2>Updated kitchen finishes</h2><p>Dark shaker cabinets, light stone-look counters, stainless steel appliances and white tile backsplash.</p></div>
             <span className="verified">Evidence linked</span>
           </div>
           <div className="evidence-note">
@@ -279,8 +261,8 @@ function UnitStage() {
 
         <aside className="impact-rail">
           <div className="impact-head"><div><p className="eyebrow">Underwriting impact</p><h2>Assumptions updated</h2></div><span className="live-dot">3 changes</span></div>
-          <Delta label="Renovation budget" before="$18,500 / unit" after="$12,800 / unit" tone="positive" />
-          <Delta label="Market rent" before="$1,925 / mo" after="$2,015 / mo" tone="positive" />
+          <Delta label="Renovation budget" before="$18,500 / unit" after="$15,250 / unit" tone="positive" reason={<><strong>Scope refined</strong><p>Repaint cabinets; do not replace the observed stainless steel appliances.</p></>} />
+          <Delta label="Market rent" before="$1,925 / mo" after="$2,015 / mo" tone="positive" reason={<><strong>Comp set adjusted</strong><p>Mark to a slightly higher-quality comp supported by the observed finish package.</p></>} />
           <Delta label="Finish quality" before="6.2 / 10" after="7.8 / 10" tone="quality" />
           <div className="impact-total">
             <span>Modeled NOI impact</span><strong>+$284K</strong><small>annualized · observed units extrapolated</small>
