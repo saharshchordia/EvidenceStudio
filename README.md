@@ -24,9 +24,10 @@ Together, these components turn unstructured field observations into a continuou
 
 ## Prototype flow
 
-1. Review the trimmed source tour and run the simulated analysis.
-2. Explore the generated asset ontology.
-3. Open Unit Insights to inspect the kitchen evidence and the resulting renovation budget, market rent, and finish quality assumptions.
+1. Review the trimmed source tour and inspect the computer-vision detections for the oven, refrigerator, countertops, and cabinets.
+2. Run the simulated analysis to classify appliance quality, identify a cabinet color update, and flag the countertops for further diligence.
+3. Explore the generated asset ontology and expand the 309-unit inventory into 31 observed and 278 not-observed units.
+4. Select observed Unit 101 to inspect the linked kitchen evidence and the resulting renovation budget, market rent, and finish quality assumptions.
 
 ## Local development
 

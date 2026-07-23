@@ -21,11 +21,24 @@ const amenityGroups = [
   },
 ];
 
-const analysisSteps = [
-  "Reading video metadata",
-  "Segmenting spaces",
-  "Identifying materials & finishes",
-  "Linking evidence to underwriting",
+const analysisFindings = [
+  { object: "Appliances", finding: "High quality", confidence: "94%" },
+  { object: "Cabinets", finding: "Update color", confidence: "91%" },
+  { object: "Countertops", finding: "Further diligence", confidence: "87%" },
+];
+
+const kitchenDetections = [
+  { label: "Fridge", confidence: "98%", className: "fridge" },
+  { label: "Oven", confidence: "97%", className: "oven" },
+  { label: "Countertop", confidence: "94%", className: "countertop" },
+  { label: "Cabinets", confidence: "96%", className: "cabinets" },
+];
+
+const observedUnits = [
+  "101", "102", "103", "104", "105", "106", "107", "108",
+  "201", "202", "203", "204", "205", "206", "207", "208",
+  "301", "302", "303", "304", "305", "306", "307", "308",
+  "401", "402", "403", "404", "405", "406", "407",
 ];
 
 function Filmstrip({ videoSrc }: { videoSrc: string }) {
@@ -105,9 +118,9 @@ function TourStage({ onAnalyze }: { onAnalyze: () => void }) {
   useEffect(() => {
     if (!analyzing) return;
     const interval = window.setInterval(() => {
-      setAnalysisIndex((value) => Math.min(value + 1, analysisSteps.length - 1));
-    }, 520);
-    const timeout = window.setTimeout(onAnalyze, 2450);
+      setAnalysisIndex((value) => Math.min(value + 1, analysisFindings.length));
+    }, 680);
+    const timeout = window.setTimeout(onAnalyze, 3100);
     return () => {
       window.clearInterval(interval);
       window.clearTimeout(timeout);
@@ -129,17 +142,37 @@ function TourStage({ onAnalyze }: { onAnalyze: () => void }) {
 
       <section className="tour-workspace">
         <div className="video-shell">
-          <video controls preload="metadata" src={videoSrc} aria-label="Property tour video" />
+          <video controls preload="metadata" poster="./unit-evidence-04s.jpg" src={videoSrc} aria-label="Property tour video" />
+          {!analyzing && (
+            <div className="vision-overlay" aria-label="Computer vision detections">
+              <div className="vision-status"><span /> Kitchen detected <strong>4 objects tracked</strong></div>
+              {kitchenDetections.map((detection) => (
+                <div className={`detection-box ${detection.className}`} key={detection.label}>
+                  <span>{detection.label}</span><small>{detection.confidence}</small>
+                </div>
+              ))}
+            </div>
+          )}
           {analyzing && (
             <div className="analysis-overlay" role="status" aria-live="polite">
               <div className="scan-line" />
+              <div className="analysis-findings">
+                <div className="analysis-findings-head"><span>Live findings</span><strong>{Math.min(analysisIndex, analysisFindings.length)} / {analysisFindings.length}</strong></div>
+                {analysisFindings.map((finding, index) => (
+                  <div className={`analysis-finding ${index < analysisIndex ? "visible" : ""}`} key={finding.object}>
+                    <span className="finding-check">✓</span>
+                    <div><small>{finding.object}</small><strong>{finding.finding}</strong></div>
+                    <b>{finding.confidence}</b>
+                  </div>
+                ))}
+              </div>
               <div className="analysis-status">
                 <span className="status-pulse" />
                 <div>
                   <strong>Analyzing asset tour</strong>
-                  <p>{analysisSteps[analysisIndex]}</p>
+                  <p>{analysisIndex < analysisFindings.length ? `Classifying ${analysisFindings[analysisIndex].object.toLowerCase()}` : "Linking findings to asset ontology"}</p>
                 </div>
-                <span className="analysis-count">{Math.min(19, 4 + analysisIndex * 5)} spaces</span>
+                <span className="analysis-count">{Math.min(12, 3 + analysisIndex * 3)} objects</span>
               </div>
             </div>
           )}
@@ -164,6 +197,17 @@ function TourStage({ onAnalyze }: { onAnalyze: () => void }) {
 
 function OntologyStage({ onUnit }: { onUnit: () => void }) {
   const [selected, setSelected] = useState("309 units");
+  const [inventoryView, setInventoryView] = useState<"summary" | "coverage" | "observed">("summary");
+
+  const openInventory = () => {
+    setSelected("309 units");
+    setInventoryView("coverage");
+  };
+
+  const openObserved = () => {
+    setSelected("31 observed");
+    setInventoryView("observed");
+  };
 
   return (
     <main className="stage ontology-stage">
@@ -198,13 +242,38 @@ function OntologyStage({ onUnit }: { onUnit: () => void }) {
           ))}
           <div className="branch units-branch">
             <div className="branch-label">Residential inventory<span>309</span></div>
-            <button className="units-node selected" onClick={() => setSelected("309 units")}>
+            <button className={`units-node ${selected === "309 units" ? "selected" : ""}`} onClick={openInventory} aria-expanded={inventoryView !== "summary"}>
               <span className="unit-glyph">U</span><strong>309 units</strong><span className="warning">1 flag</span><small>31 observed</small>
             </button>
-            <button className="secondary-action" onClick={onUnit} data-testid="open-unit">Open unit insights <span>→</span></button>
+            {inventoryView !== "summary" && (
+              <div className="inventory-breakdown">
+                <button className={`coverage-node observed ${selected === "31 observed" ? "selected" : ""}`} onClick={openObserved} aria-expanded={inventoryView === "observed"}>
+                  <span className="coverage-count">31</span><span><strong>Observed units</strong><small>Evidence available</small></span><b>10%</b>
+                </button>
+                <div className="coverage-node unobserved">
+                  <span className="coverage-count">278</span><span><strong>Not observed</strong><small>Coverage gap</small></span><b>90%</b>
+                </div>
+              </div>
+            )}
+            {inventoryView === "observed" && (
+              <div className="observed-units" aria-label="31 observed units">
+                <div className="observed-units-head"><strong>31 observed</strong><span>Select a unit</span></div>
+                <div className="unit-chip-grid">
+                  {observedUnits.map((unit, index) => index === 0 ? (
+                    <button key={unit} className="unit-chip first" onClick={onUnit} aria-label="Unit 101, open insights" data-testid="open-unit">
+                      <span>U</span>{unit}<b>→</b>
+                    </button>
+                  ) : (
+                    <div key={unit} className="unit-chip" aria-label={`Unit ${unit}, observed`}>
+                      <span>U</span>{unit}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
-        <div className="canvas-footnote"><span className="legend-dot green" /> Confirmed space <span className="legend-dot blue" /> Selected object</div>
+        <div className="canvas-footnote"><span className="legend-dot green" /> Observed / evidence linked <span className="legend-dot gray" /> Not observed <span className="legend-dot blue" /> Selected object</div>
       </section>
     </main>
   );
@@ -227,7 +296,7 @@ function UnitStage() {
   return (
     <main className="stage unit-stage">
       <section className="stage-heading compact unit-heading">
-        <div><p className="eyebrow">Residential inventory / observed unit</p><h1>Unit interiors</h1><p className="subtitle">31 observations · 15 evidence moments</p></div>
+        <div><p className="eyebrow">Residential inventory / observed unit</p><h1>Unit 101 interiors</h1><p className="subtitle">31 observations · 15 evidence moments</p></div>
         <span className="review-state">Review complete</span>
       </section>
 
