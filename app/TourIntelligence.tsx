@@ -28,10 +28,10 @@ const analysisFindings = [
 ];
 
 const kitchenDetections = [
-  { label: "Fridge", confidence: "98%", className: "fridge" },
-  { label: "Oven", confidence: "97%", className: "oven" },
-  { label: "Countertop", confidence: "94%", className: "countertop" },
-  { label: "Cabinets", confidence: "96%", className: "cabinets" },
+  { label: "Fridge", confidence: "98%", track: { left: [0.8, 22], top: [34, 35], width: [9.2, 20], height: [40, 47] } },
+  { label: "Oven", confidence: "97%", track: { left: [45.2, 85], top: [41, 43], width: [16.8, 18], height: [37, 41] } },
+  { label: "Countertop", confidence: "94%", track: { left: [3.2, 38], top: [61.5, 66], width: [42, 60], height: [11, 15] } },
+  { label: "Cabinets", confidence: "96%", track: { left: [5, 25], top: [12, 8], width: [56, 75], height: [38, 49] } },
 ];
 
 const observedUnits = [
@@ -113,7 +113,11 @@ function Progress({ stage, onChange }: { stage: Stage; onChange: (stage: Stage) 
 function TourStage({ onAnalyze }: { onAnalyze: () => void }) {
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisIndex, setAnalysisIndex] = useState(0);
+  const [visionTime, setVisionTime] = useState(0);
   const videoSrc = "./tour-clip-04-12.mp4";
+  const trackingProgress = Math.min(visionTime / 1.3, 1);
+  const visionVisible = visionTime <= 1.35;
+  const interpolate = ([start, end]: number[]) => start + (end - start) * trackingProgress;
 
   useEffect(() => {
     if (!analyzing) return;
@@ -142,12 +146,21 @@ function TourStage({ onAnalyze }: { onAnalyze: () => void }) {
 
       <section className="tour-workspace">
         <div className="video-shell">
-          <video controls preload="metadata" poster="./unit-evidence-04s.jpg" src={videoSrc} aria-label="Property tour video" />
+          <video controls preload="metadata" poster="./unit-evidence-04s.jpg" src={videoSrc} aria-label="Property tour video" onTimeUpdate={(event) => setVisionTime(event.currentTarget.currentTime)} onSeeked={(event) => setVisionTime(event.currentTarget.currentTime)} />
           {!analyzing && (
-            <div className="vision-overlay" aria-label="Computer vision detections">
+            <div className={`vision-overlay ${visionVisible ? "visible" : ""}`} aria-label="Computer vision detections" aria-hidden={!visionVisible}>
               <div className="vision-status"><span /> Kitchen detected <strong>4 objects tracked</strong></div>
               {kitchenDetections.map((detection) => (
-                <div className={`detection-box ${detection.className}`} key={detection.label}>
+                <div
+                  className="detection-box"
+                  key={detection.label}
+                  style={{
+                    left: `${interpolate(detection.track.left)}%`,
+                    top: `${interpolate(detection.track.top)}%`,
+                    width: `${interpolate(detection.track.width)}%`,
+                    height: `${interpolate(detection.track.height)}%`,
+                  }}
+                >
                   <span>{detection.label}</span><small>{detection.confidence}</small>
                 </div>
               ))}

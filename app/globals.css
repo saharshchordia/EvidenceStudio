@@ -47,20 +47,17 @@ h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 500; font-size
 .tour-workspace { display: grid; grid-template-columns: minmax(0, 1fr) 320px; min-height: calc(100vh - 235px); background: white; }
 .video-shell { position: relative; min-height: 520px; background: #121513; overflow: hidden; }
 .video-shell > video { width: 100%; height: 100%; min-height: 520px; object-fit: contain; display: block; background: #111513; }
-.vision-overlay { position: absolute; inset: 0 0 42px; pointer-events: none; overflow: hidden; }
+.vision-overlay { position: absolute; inset: 0 0 42px; pointer-events: none; overflow: hidden; opacity: 0; transition: opacity .34s ease; }
+.vision-overlay.visible { opacity: 1; }
 .vision-status { position: absolute; top: 16px; left: 16px; display: flex; align-items: center; gap: 7px; padding: 7px 9px; color: white; background: rgba(13,22,18,.82); border: 1px solid rgba(122,229,173,.45); backdrop-filter: blur(6px); font: 600 9px ui-monospace, monospace; }
 .vision-status > span { width: 6px; height: 6px; border-radius: 50%; background: #69dfa0; box-shadow: 0 0 0 3px rgba(105,223,160,.16); }
 .vision-status strong { color: #9ee9bd; font-weight: 600; margin-left: 3px; }
-.detection-box { position: absolute; border: 1px solid rgba(112,237,169,.94); box-shadow: inset 0 0 0 1px rgba(13,30,21,.18), 0 0 16px rgba(64,217,135,.1); animation: detectIn .42s ease both; }
+.detection-box { position: absolute; border: 1px solid rgba(112,237,169,.94); box-shadow: inset 0 0 0 1px rgba(13,30,21,.18), 0 0 16px rgba(64,217,135,.1); animation: detectIn .42s ease both; transition: left .22s linear, top .22s linear, width .22s linear, height .22s linear; }
 .detection-box::before, .detection-box::after { content: ""; position: absolute; width: 12px; height: 12px; border-color: #7cebab; }
 .detection-box::before { left: -2px; top: -2px; border-left: 2px solid; border-top: 2px solid; }
 .detection-box::after { right: -2px; bottom: -2px; border-right: 2px solid; border-bottom: 2px solid; }
 .detection-box > span { position: absolute; left: -1px; top: -22px; padding: 4px 6px; color: #102118; background: #7cebab; font: 750 8px ui-monospace, monospace; text-transform: uppercase; }
 .detection-box > small { position: absolute; right: 3px; bottom: 3px; padding: 2px 4px; color: white; background: rgba(11,23,17,.76); font: 700 7px ui-monospace, monospace; }
-.detection-box.fridge { left: 0.8%; top: 34%; width: 9.2%; height: 40%; animation-delay: .12s; }
-.detection-box.oven { left: 45.2%; top: 41%; width: 16.8%; height: 37%; animation-delay: .22s; }
-.detection-box.countertop { left: 3.2%; top: 61.5%; width: 42%; height: 11%; animation-delay: .32s; }
-.detection-box.cabinets { left: 5%; top: 12%; width: 56%; height: 38%; animation-delay: .42s; }
 @keyframes detectIn { from { opacity: 0; transform: scale(.985); } }
 .tour-summary { padding: 38px 30px; border-left: 1px solid var(--line); background: #fff; }
 .tour-summary h2 { font: 500 24px/1.25 Georgia, serif; max-width: 260px; }
